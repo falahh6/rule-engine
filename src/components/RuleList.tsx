@@ -3,23 +3,27 @@
 import { Rule } from "@prisma/client";
 import { Checkbox, Empty, Spin } from "antd";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TreeUi from "./ui/TreeUi";
 import CreateRule from "./CreateRule";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import CombineRule from "./CombineRule";
 import EvaluateRule from "./EvaluateRule";
 
-export const RuleView = ({ initialRules }: { initialRules: Rule[] }) => {
-  const [rules, setRules] = useState<Rule[]>(initialRules);
-  const [loading, setLoading] = useState(false);
+export const RuleView = () => {
+  const [rules, setRules] = useState<Rule[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedRules, setSelectedRules] = useState<Rule[]>([]);
+
+  useEffect(() => {
+    getRules();
+  }, []);
 
   const getRules = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
+      const res = await fetch(`/api/rules`, {
         cache: "no-cache",
       });
       if (!res.ok) {
