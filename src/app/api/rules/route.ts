@@ -3,22 +3,52 @@ import { createRule } from "@/lib/ast";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
-  const { name, ruleString }: { name: string; ruleString: string } =
-    await request.json();
-  console.log("ruleString : ", ruleString);
+  try {
+    // Parse and validate request data
+    const { name, ruleString }: { name: string; ruleString: string } =
+      await request.json();
 
-  const ast = createRule(ruleString);
-  console.log("ast : ", ast);
+    if (!name || !ruleString) {
+      return NextResponse.json(
+        { error: "Name and ruleString are required" },
+        { status: 400 }
+      );
+    }
 
-  const rule = await prisma.rule.create({
-    data: {
-      name,
-      ruleString: ruleString ?? null,
-      ast: JSON.stringify(ast),
-    },
-  });
+    console.log("Received ruleString:", ruleString);
 
-  return NextResponse.json(rule);
+    // Create AST from rule string
+    let ast;
+    try {
+      ast = createRule(ruleString);
+    } catch (error) {
+      console.error("Failed to create AST from ruleString:", error);
+      return NextResponse.json(
+        { error: "Invalid ruleString format" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Generated AST:", ast);
+
+    // Save the rule to the database
+    const rule = await prisma.rule.create({
+      data: {
+        name,
+        ruleString: ruleString ?? null,
+        ast: JSON.stringify(ast),
+      },
+    });
+
+    // Return the newly created rule
+    return NextResponse.json(rule);
+  } catch (error) {
+    console.error("Error occurred in POST /api/rules:", error);
+    return NextResponse.json(
+      { error: "An internal error occurred" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function GET() {
