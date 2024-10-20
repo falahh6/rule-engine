@@ -1,7 +1,7 @@
 "use client";
 
 import { Rule } from "@prisma/client";
-import { Checkbox, Empty, Spin } from "antd";
+import { Checkbox, Empty, Skeleton } from "antd";
 
 import React, { useEffect, useState } from "react";
 import TreeUi from "./ui/TreeUi";
@@ -70,8 +70,11 @@ export const RuleView = () => {
         </div>
         <>
           {loading && (
-            <div className="py-32 h-auto w-[90vw] absolute bg-gray-50 flex items-center justify-center z-20 opacity-70">
-              <Spin />
+            <div className="py-8 h-auto w-full bg-gray-50 flex items-start justify-between px-10 z-20 opacity-70">
+              <Skeleton.Button active className="w-[10%]" />
+              <Skeleton.Input active className="w-[20%]" />
+              <Skeleton.Input active className="w-[70%]" />
+              <Skeleton.Input active className="w-[10%]" />
             </div>
           )}
           {rules.length > 0 ? (
@@ -100,19 +103,23 @@ export const RuleView = () => {
               ))}
             </>
           ) : (
-            <div className="py-10">
-              <Empty
-                description={
-                  <div>
-                    No rules exists, Please Create one{" "}
-                    <div className=" mt-4">
-                      {" "}
-                      <CreateRule getRules={getRules} />
-                    </div>
-                  </div>
-                }
-              />
-            </div>
+            <>
+              {!loading && (
+                <div className="py-10">
+                  <Empty
+                    description={
+                      <div>
+                        No rules exists, Please Create one{" "}
+                        <div className=" mt-4">
+                          {" "}
+                          <CreateRule getRules={getRules} />
+                        </div>
+                      </div>
+                    }
+                  />
+                </div>
+              )}
+            </>
           )}
         </>
       </div>
